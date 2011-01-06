@@ -1,6 +1,6 @@
 (function(global){
 
-  var M = window.MockIt = {
+  var M = global.MockIt = {
     'before each': function(t){
       M.mocks = [];
       t.mock = function(object, functionName){
@@ -39,4 +39,4 @@
     }
   };
 
-})(window);
+})(typeof window === 'undefined' ? exports : window);
