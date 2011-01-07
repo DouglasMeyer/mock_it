@@ -62,3 +62,15 @@ fakeTestItReporter.prototype.constructor = fakeTestItReporter;
     }
   }, MockIt);
 })();
+
+TestIt('MockIt', {
+  'should only have "before each" and "after each"': function(t){
+    var keys=[];
+    for(var name in MockIt){
+      keys.push(name);
+    }
+    t.assertEqual(2, keys.length);
+    t.assert(MockIt['before each']);
+    t.assert(MockIt['after each']);
+  }
+});
