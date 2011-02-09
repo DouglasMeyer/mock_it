@@ -1,7 +1,7 @@
 var TestIt, MockIt;
 if (typeof window === 'undefined') {
-  TestIt = require('../lib/test_it/src/test_it').TestIt;
-  MockIt = require('../src/mock_it').MockIt;
+  TestIt = require('../lib/test_it/src/test_it');
+  MockIt = require('../src/mock_it');
   var element = {
     appendChild: function(){},
     getElementsByTagName: function(){ return []; }
@@ -14,25 +14,22 @@ if (typeof window === 'undefined') {
   };
 }
 
-var log,
-    fakeTestItReporter = function(results){
-      log = this.constructor.log = [];
-      log.appendChild = log.push;
-      this.reportContext(results);
-      return results;
-    };
-
-fakeTestItReporter.prototype = new TestIt.DomReporter({});
-fakeTestItReporter.prototype.constructor = fakeTestItReporter;
 (function(){
-  var results,
-      mockedFunctionResponse,
+  var mockedFunctionResponse,
       wasMockedFunction,
-      origDocumentGetElementById = document.getElementById;
+      origDocumentGetElementById = document.getElementById,
+      expectedCallsResult,
+      expectedCallsMessage,
+      callback = function(name, result, assertionCount, message){
+        if (name.join(': ') === 'tests: mock expectedCalls test'){
+          expectedCallsResult = result;
+          expectedCallsMessage = message;
+        }
+      };
   TestIt('mocking', {
     'before all': function(){
 
-      results = TestIt('tests', {
+      TestIt('tests', {
         'mock test': function(t){
           t.mock(document, 'getElementById', function(){
             return 'ok';
@@ -47,7 +44,7 @@ fakeTestItReporter.prototype.constructor = fakeTestItReporter;
           document.getElementById();
           document.getElementById();
         }
-      }, MockIt, fakeTestItReporter);
+      }, MockIt, callback);
 
     },
     'should run mock function': function(t){
@@ -57,8 +54,8 @@ fakeTestItReporter.prototype.constructor = fakeTestItReporter;
       t.assertEqual(origDocumentGetElementById, wasMockedFunction);
     },
     'should fail if expectedCalls isn\'t met': function(t){
-      t.assertEqual('fail', results['tests']['mock expectedCalls test'].result);
-      t.assertEqual('expected "getElementById" to be called 1 times, but was called 2 times', results['tests']['mock expectedCalls test'].message);
+      t.assertEqual('fail', expectedCallsResult);
+      t.assertEqual('expected "getElementById" to be called 1 times, but was called 2 times', expectedCallsMessage);
     }
   }, MockIt);
 })();

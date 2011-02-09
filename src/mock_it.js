@@ -1,6 +1,6 @@
-(function(global){
+(function(){
 
-  var M = global.MockIt = {
+  var M = {
     'before each': function(t){
       t.mocks = [];
       t.mock = function(object, functionName){
@@ -39,4 +39,10 @@
     }
   };
 
-})(typeof window === 'undefined' ? exports : window);
+  if (typeof module !== 'undefined'){
+    module.exports = M;
+  } else {
+    window.MockIt = M;
+  }
+
+})();
